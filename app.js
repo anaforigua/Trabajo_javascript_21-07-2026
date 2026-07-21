@@ -1,10 +1,13 @@
-//import express from "express"
-const express = require("express")
+import express from "express"; //ESM
+import {configDotenv} from "dotenv"
+configDotenv()
+
+
 const app = express();
-const puerto = process.env.PORT||3000;
+const puerto = process.env.PORT||3050;
 
 app.get ("/",(req,res)=>{
-    res.send("hola ficha 3407180")
+    res.send("hola ficha 3407180 del SENA ")
 
 })
 
