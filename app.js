@@ -20,9 +20,9 @@ app.get("/liz/:amor",(req,res)=>{
     res.send(`<p> Mi corazon nene, mi corazon nene, mi corazon muriendose de amor ${amor} </p>`);
 });
 
-app.get("/nombre/:Anamaria",(req,res)=>{
-    const Anamaria = req.params.Anamaria
-    res.send(`<p> Hola soy de la ficha 3407180 me llamo ${Anamaria} </p>`);
+app.get("/nombre/:ficha",(req,res)=>{
+    const ficha = req.params.ficha
+    res.send(`<p> Hola soy Ana de la ficha ${ficha} </p>`);
 });
 
 app.listen( puerto,()=>{
