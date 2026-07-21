@@ -12,9 +12,11 @@ app.get ("/",(req,res)=>{
 });
 
 app.get("/hi",(req,res)=>{
-    res.send(`<p> Recuerda querida: ''Todos los hombres son iguales,mas no sus sueldos''. Paola Bracho</p><h1> La usurpadora </h1>`);
+    res.send(`<p> Recuerda querida: ''Todos los hombres son iguales,mas no sus sueldos''. Paola Bracho</p><h1> La usurpadora </h1> ${hi}`);
 });
 
 app.listen( puerto,()=>{
-    console.log (`servidor funcionando!! en el puerto ${puerto}`)
+    console.log (`SERVIDOR https//localhost:${puerto} 
+        https//127.0.0.1:${puerto}`)
+    
 });
