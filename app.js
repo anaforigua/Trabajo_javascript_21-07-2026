@@ -48,3 +48,9 @@ app.get("/libros/:isbn", (req,res)=> {
     const mi_isbn= req.params.isbn
     res.send(`<h1>Hola coloca el ISBN (el codigo del libro)</h1> ${mi_isbn}`)
 })
+
+app.get("/productos/:lacteos?fecha_v", (req,res)=> {
+    const lacteo= req.params.lacteos
+    const fecha_v= req.query.fecha_v
+    res.send(`<h1>Hola coloca el ISBN (el codigo del libro)</h1> ${lacteo}`)
+})
