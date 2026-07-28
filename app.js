@@ -31,3 +31,20 @@ app.listen( puerto,()=>{
     
 });
 
+// 
+app.get("/productos/:categoria",(req,res)=>{
+    const mi_categoria = req.params.categoria
+    res.send(`Hola escribe l acategoria de un producto que te interese ${mi_categoria} `);
+});
+
+app.get("/productos/:categoria/:id",(req,res)=>{
+    const mi_categoria = req.params.categoria
+    const mi_id = req.params.id
+    res.send(`<h1> Hola escribe una categoria de un producto que te interese </h1> <p>${mi_categoria}<p> <h1>coloca el numero de id</h1> <p>${mi_id}</p>`);
+});
+
+
+app.get("/libros/:isbn", (req,res)=> {
+    const mi_isbn= req.params.isbn
+    res.send(`<h1>Hola coloca el ISBN (el codigo del libro)</h1> ${mi_isbn}`)
+})
