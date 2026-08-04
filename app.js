@@ -50,7 +50,7 @@ app.get("/libros/:isbn", (req,res)=> {
     res.send(`<h1>Hola coloca el ISBN (el codigo del libro)</h1> ${mi_isbn}`)
 })
 
-app.get("/productos/:lacteos", (req,res)=> {
+app.get("/lacteos/:lacteos", (req,res)=> {
     const lacteo= req.params.lacteos
     const fecha_v= req.query.fecha_v
     res.send(`<h1>Hola coloca una categoria de interes </h1> ${lacteo} <p>Fecha de vencimiento: ${fecha_v}</p>`
@@ -60,100 +60,55 @@ app.get("/productos/:lacteos", (req,res)=> {
 
 
 
-const lista_productos=[
-    
-    { id: 1, nombre: "Laptop", categoria: "Tecnología", precio: 2500000 },
-    { id: 2, nombre: "Mouse", categoria: "Tecnología", precio: 80000 },
-    { id: 3, nombre: "Camiseta", categoria: "Ropa", precio: 50000 },
-    { id: 4, nombre: "Zapatos", categoria: "Calzado", precio: 180000 }
-    
+const productos = [
+  { idProducto: 1, nombre: "Camisa", categoria: "Ropa", cantidad: 10 },
+  { idProducto: 2, nombre: "Pantalón", categoria: "Ropa", cantidad: 5 },
+  { idProducto: 3, nombre: "Zapatos", categoria: "Calzado", cantidad: 8 }
 ];
 
-app.get("/productos", (req, res) => {
-   const {nombre}=req.query;
-       if (nombre) {
-        const resultado = lista_productos.filter(
-            producto => producto.nombre.toLowerCase() === nombre.toLowerCase()
-        );
-         return res.json(resultado);
-    }
+const libros = [
+  { isbn: "9780131103627", nombre: "El libro de C", autor: "Brian Kernighan" },
+  { isbn: "9780596007126", nombre: "JavaScript: The Definitive Guide", autor: "David Flanagan" },
+  { isbn: "9781491952023", nombre: "Eloquent JavaScript", autor: "Marijn Haverbeke" }
+];
+app.get("/editar-producto", (req, res) => {
 
-    res.json(lista_productos);
-});
+    const idProducto = req.query.producto;
+    const nombre = req.query.nombre;
+    const categoria = req.query.categoria;
+    const cantidad = req.query.cantidad;
 
-app.put("/productos", (req, res) => {
-    const { id, nombre, precio } = req.query;
-
-    const producto = lista_productos.find(
-        producto => producto.id === Number(id)
+    const producto = productos.find(
+        item => item.idProducto == idProducto
     );
 
     if (!producto) {
-        return res.status(404).json({
-            mensaje: "Producto no encontrado"
-        });
+        return res.send("Producto no encontrado");
     }
 
-    if (nombre) {
-        producto.nombre = nombre;
-    }
+    if (nombre) producto.nombre = nombre;
+    if (categoria) producto.categoria = categoria;
+    if (cantidad) producto.cantidad = cantidad;
 
-    if (precio) {
-        producto.precio = Number(precio);
-    }
-
-    res.json({
-        mensaje: "Producto actualizado",
-        producto: producto
-    });
+    res.json(producto);
 });
 
+app.get("/editar-libro", (req, res) => {
 
+    const isbn = req.query.libro;
+    const nombre = req.query.nombre;
+    const autor = req.query.autor;
 
-const lista_libros=[
-    {
-         ISBN:21345,titulo:"El viejo y el mar", autor:"Ernest Hemingway."},
-         {
-         ISBN:21346,titulo:"Carrie", autor:"Stephen King."},
-         {
-         ISBN:22430,titulo:"El mensajero de agartha zombies", autor:"Mario Mendoza."}
-]
-
-app.get("/libros", (req, res) => {
-   const {titulo}=req.query;
-       if (titulo) {
-        const resultado = lista_libros.filter(
-            libro => libro.titulo.toLowerCase() === titulo.toLowerCase()
-        );
-         return res.json(resultado);
-    }
-
-    res.json(lista_libros);
-});
-
-app.put("/libros", (req, res) => {
-    const { ISBN, titulo, autor } = req.query;
-
-    const libro = lista_libros.find(
-        libro => libro.ISBN === Number(ISBN)
+    const libro = libros.find(
+        item => item.isbn == isbn
     );
 
     if (!libro) {
-        return res.status(404).json({
-            mensaje: "Libro no encontrado"
-        });
+        return res.send("Libro no encontrado");
     }
 
-    if (titulo) {
-        libro.titulo = titulo;
-    }
+    if (nombre) libro.nombre = nombre;
+    if (autor) libro.autor = autor;
 
-    if (autor) {
-        libro.autor = autor;
-    }
-
-    res.json({
-        mensaje: "Libro actualizado correctamente",
-        libro: libro
-    });
+    res.json(libro);
 });
