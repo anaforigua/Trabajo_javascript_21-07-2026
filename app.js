@@ -14,6 +14,15 @@ app.get("/frase/:Rubi", (req, res) => {
     res.send(`"En esta vida el dinero es muy importante y el que diga que no es porque le sobra o porque está equivocado." ${Rubi}`);
 });
 
+
+app.get("/Paola", (req, res) => {
+    const Paola = "paola";
+    const nombre = Paola.charAt(0).toUpperCase() + Paola.slice(1);
+
+    res.send(`"Aquí me aburro soberanamente, no tengo a quien fastidiar ni con quien destilar veneno." ${nombre}`);
+});
+
+
 app.listen( puerto,()=>{
     console.log (`SERVIDOR https//localhost:${puerto} 
         https//127.0.0.1:${puerto}`)
