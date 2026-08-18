@@ -1,0 +1,26 @@
+[
+  {
+    "id": 20,
+    "nombre": "anita",
+    "correo": "ana21@gmail.com",
+    "imagen": "url"
+  },
+  {
+    "id": 21,
+    "nombre": "juan",
+    "correo": "amigo323@gmail.com",
+    "imagen": "url"
+  },
+  {
+    "id": 28,
+    "nombre": "Ernesto Perez",
+    "correo": "pedro@gmail.com",
+    "imagen": "url"
+  },
+  {
+    "id": 23,
+    "nombre": "Pedro",
+    "correo": "pedro@gmail.com",
+    "imagen": "url"
+  }
+]

@@ -1,111 +1,169 @@
-import express from "express"; //ESM
+//import express from "express"; //ESM
 //import {configDotenv} from "dotenv"
 //configDotenv()
-import "dotenv/config"
-
+//import "dotenv/config"
+const express = require("express")
 const app = express();
 const puerto = process.env.PORT||3050;
+const sistemadearchivos = require("fs")
+const ruta = require("path")
+const rutaArchivoJson= ruta.join(__dirname,"aprendices.json")
+app.use(express.json());
+//app.get ("/",(req,res)=>{
+//res.send("hola ficha 3407180 del SENA ")
+//});
 
-app.get ("/",(req,res)=>{
-    res.send("hola ficha 3407180 del SENA ")
+
+const listaAprendices = { "id": 20, "nombre": "anita", "correo": "ana21@gmail.com", "imagen":"url"};
+
+//LISTAR APRENDICES
+app.get("/api/aprendices/listar", (req, res) => {
+
+    sistemadearchivos.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
+        if (error) {
+            return res.status(500).json({
+                Error: "Error al leer el archivo JSON"
+            });
+        }
+        const listaAprendices = JSON.parse(datos);
+        res.json(listaAprendices);
+    });
 
 });
 
-app.get("/hi",(req,res)=>{
-    res.send(`<p> Recuerda querida: ''Todos los hombres son iguales,mas no sus sueldos''. Paola Bracho</p><h1> La usurpadora </h1> ${hi}`);
+app.post("/api/aprendices/crear", (req, res) => {
+
+    const datosaprendiz = req.body;
+
+    sistemadearchivos.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
+
+        if (error) {
+            return res.status(500).json({
+                Error: "No se puede leer el archivo JSON"
+            });
+        }
+
+
+       console.log(rutaArchivoJson, datos);
+        const listaAprendices = JSON.parse(datos);
+
+        listaAprendices.push(datosaprendiz);
+
+        sistemadearchivos.writeFile(
+            rutaArchivoJson,
+            JSON.stringify(listaAprendices, null, 2),
+            (error) => {
+
+                if (error) {
+                    return res.status(500).json({
+                        Error: "No se puede registrar el aprendiz"
+                    });
+                }
+
+                res.status(201).json(datosaprendiz);
+            }
+        );
+
+    });
+
 });
 
-app.get("/liz/:amor",(req,res)=>{
-    const amor = req.params.amor
-    res.send(`<p> Mi corazon nene, mi corazon nene, mi corazon muriendose de amor ${amor} </p>`);
+app.put("/api/aprendices/actualizar", (req, res) => {
+
+    const datosaprendiz = req.body;
+
+    sistemadearchivos.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
+
+        if (error) {
+            return res.status(500).json({
+                Error: "No se puede leer el archivo JSON"
+            });
+        }
+
+        const listaAprendices = JSON.parse(datos);
+
+        const indice = listaAprendices.findIndex(
+            aprendiz => aprendiz.id === datosaprendiz.id
+        );
+
+        if (indice === -1) {
+            return res.status(404).json({
+                Error: "Aprendiz no encontrado"
+            });
+        }
+
+        listaAprendices[indice] = datosaprendiz;
+
+        sistemadearchivos.writeFile(
+            rutaArchivoJson,
+            JSON.stringify(listaAprendices, null, 2),
+            (error) => {
+
+                if (error) {
+                    return res.status(500).json({
+                        Error: "No se puede actualizar el aprendiz"
+                    });
+                }
+
+                res.status(200).json({
+                    mensaje: "Aprendiz actualizado correctamente",
+                    aprendiz: datosaprendiz
+                });
+            }
+        );
+    });
 });
 
-app.get("/nombre/:ficha",(req,res)=>{
-    const ficha = req.params.ficha
-    res.send(`<p> Hola soy Ana de la ficha ${ficha} </p>`);
+
+
+app.delete("/api/aprendices/eliminar", (req, res) => {
+
+    const id = req.body.id;
+
+    sistemadearchivos.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
+
+        if (error) {
+            return res.status(500).json({
+                Error: "No se puede leer el archivo JSON"
+            });
+        }
+
+        const listaAprendices = JSON.parse(datos);
+
+        const indice = listaAprendices.findIndex(
+            aprendiz => aprendiz.id === id
+        );
+
+        if (indice === -1) {
+            return res.status(404).json({
+                Error: "Aprendiz no encontrado"
+            });
+        }
+
+        const aprendizEliminado = listaAprendices.splice(indice, 1)[0];
+
+        sistemadearchivos.writeFile(
+            rutaArchivoJson,
+            JSON.stringify(listaAprendices, null, 2),
+            (error) => {
+
+                if (error) {
+                    return res.status(500).json({
+                        Error: "No se puede eliminar el aprendiz"
+                    });
+                }
+
+                res.status(200).json({
+                    mensaje: `Aprendiz ${aprendizEliminado.nombre} eliminado correctamente`,
+                    aprendiz: aprendizEliminado
+                });
+            }
+        );
+    });
 });
 
+//Vamos a crear un end point
 app.listen( puerto,()=>{
     console.log (`SERVIDOR https//localhost:${puerto} 
         https//127.0.0.1:${puerto}`)
-    
-});
-
-// 
-app.get("/productos/:categoria",(req,res)=>{
-    const mi_categoria = req.params.categoria
-    res.send(`Hola escribe l acategoria de un producto que te interese ${mi_categoria} `);
-});
-
-app.get("/productos/:categoria/:id",(req,res)=>{
-    const mi_categoria = req.params.categoria
-    const mi_id = req.params.id
-    res.send(`<h1> Hola escribe una categoria de un producto que te interese </h1> <p>${mi_categoria}<p> <h1>coloca el numero de id</h1> <p>${mi_id}</p>`);
-});
-
-
-app.get("/libros/:isbn", (req,res)=> {
-    const mi_isbn= req.params.isbn
-    res.send(`<h1>Hola coloca el ISBN (el codigo del libro)</h1> ${mi_isbn}`)
-})
-
-app.get("/lacteos/:lacteos", (req,res)=> {
-    const lacteo= req.params.lacteos
-    const fecha_v= req.query.fecha_v
-    res.send(`<h1>Hola coloca el ISBN (el codigo del libro)</h1> ${lacteo}`)
-})
-
-
-//parametros de consulta
-const productos = [
-  { idProducto: 1, nombre: "Camisa", categoria: "Ropa", cantidad: 10 },
-  { idProducto: 2, nombre: "Pantalón", categoria: "Ropa", cantidad: 5 },
-  { idProducto: 3, nombre: "Zapatos", categoria: "Calzado", cantidad: 8 }
-];
-
-const libros = [
-  { isbn: "9780131103627", nombre: "El libro de C", autor: "Brian Kernighan" },
-  { isbn: "9780596007126", nombre: "JavaScript: The Definitive Guide", autor: "David Flanagan" },
-  { isbn: "9781491952023", nombre: "Eloquent JavaScript", autor: "Marijn Haverbeke" }
-];
-app.get("/editar-producto", (req, res) => {
-
-    const idProducto = req.query.producto;
-    const nombre = req.query.nombre;
-    const categoria = req.query.categoria;
-    const cantidad = req.query.cantidad;
-
-    const producto = productos.find(
-        item => item.idProducto == idProducto
-    );
-
-    if (!producto) {
-        return res.send("Producto no encontrado");
-    }
-
-    if (nombre) producto.nombre = nombre;
-    if (categoria) producto.categoria = categoria;
-    if (cantidad) producto.cantidad = cantidad;
-
-    res.json(producto);
-});
-
-app.get("/editar-libro", (req, res) => {
-
-    const isbn = req.query.isbn;
-    const nombre = req.query.nombre;
-    const autor = req.query.autor;
-
-    const libro = libros.find(
-        item => item.isbn == isbn
-    );
-
-    if (!libro) {
-        return res.send("Libro no encontrado");
-    }
-
-    if (nombre) libro.nombre = nombre;
-    if (autor) libro.autor = autor;
-
-    res.json(libro);
 });
