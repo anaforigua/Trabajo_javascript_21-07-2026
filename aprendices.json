@@ -22,5 +22,20 @@
     "nombre": "Pedro",
     "correo": "pedro@gmail.com",
     "imagen": "url"
+  },
+  {
+    "imagen": "Sin archivo"
+  },
+  {
+    "id": "20",
+    "nombre": "anita",
+    "correo": "ana21@gmail.com",
+    "imagen": "misimagenes/1788266882060.webp"
+  },
+  {
+    "id": "20",
+    "nombre": "anita",
+    "correo": "ana21@gmail.com",
+    "imagen": "misimagenes/1788267105993.webp"
   }
 ]

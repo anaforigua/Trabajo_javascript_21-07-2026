@@ -1,25 +1,37 @@
-//import express from "express"; //ESM
-//import {configDotenv} from "dotenv"
-//configDotenv()
-//import "dotenv/config"
-const express = require("express")
+const express = require("express"); 
+const fs = require("fs"); 
+const path = require("path"); 
+const multer = require("multer");
+
 const app = express();
-const puerto = process.env.PORT||3050;
-const sistemadearchivos = require("fs")
-const ruta = require("path")
-const rutaArchivoJson= ruta.join(__dirname,"aprendices.json")
+const puerto = process.env.PORT || 3050;
+const rutaArchivoJson = path.join(__dirname, "aprendices.json");
+
+// Middlewares esenciales
 app.use(express.json());
-//app.get ("/",(req,res)=>{
-//res.send("hola ficha 3407180 del SENA ")
-//});
 
+// Asegurar que la carpeta exista antes de usarla
+const carpetaImágenes = path.join(__dirname, "misimagenes");
+if (!fs.existsSync(carpetaImágenes)) {
+    fs.mkdirSync(carpetaImágenes, { recursive: true });
+}
 
-const listaAprendices = { "id": 20, "nombre": "anita", "correo": "ana21@gmail.com", "imagen":"url"};
+const almacenamiento = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, carpetaImágenes);
+    },
+    filename: (req, file, cb) => {
+        const extension = path.extname(file.originalname);
+        cb(null, `${Date.now()}${extension}`);
+    }
+});
 
-//LISTAR APRENDICES
+const cargar = multer({ storage: almacenamiento });
+// Eliminamos la declaración duplicada de 'cargar'
+
+// LISTAR APRENDICES
 app.get("/api/aprendices/listar", (req, res) => {
-
-    sistemadearchivos.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
+    fs.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
         if (error) {
             return res.status(500).json({
                 Error: "Error al leer el archivo JSON"
@@ -28,32 +40,29 @@ app.get("/api/aprendices/listar", (req, res) => {
         const listaAprendices = JSON.parse(datos);
         res.json(listaAprendices);
     });
-
 });
 
-app.post("/api/aprendices/crear", (req, res) => {
-
+// CREAR APRENDICES
+app.post("/api/aprendices/crear", cargar.single("imagen"), (req, res) => {
     const datosaprendiz = req.body;
+    
+    // Guardamos la ruta con el nombre correcto de la carpeta
+    datosaprendiz.imagen = req.file ? `misimagenes/${req.file.filename}` : "Sin archivo";
 
-    sistemadearchivos.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
-
+    fs.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
         if (error) {
             return res.status(500).json({
                 Error: "No se puede leer el archivo JSON"
             });
         }
 
-
-       console.log(rutaArchivoJson, datos);
         const listaAprendices = JSON.parse(datos);
-
         listaAprendices.push(datosaprendiz);
 
-        sistemadearchivos.writeFile(
+        fs.writeFile(
             rutaArchivoJson,
             JSON.stringify(listaAprendices, null, 2),
             (error) => {
-
                 if (error) {
                     return res.status(500).json({
                         Error: "No se puede registrar el aprendiz"
@@ -63,17 +72,14 @@ app.post("/api/aprendices/crear", (req, res) => {
                 res.status(201).json(datosaprendiz);
             }
         );
-
     });
-
 });
 
-app.put("/api/aprendices/actualizar", (req, res) => {
-
+// ACTUALIZAR APRENDICES
+app.put("/api/aprendices/actualizar", cargar.single("imagen"), (req, res) => {
     const datosaprendiz = req.body;
 
-    sistemadearchivos.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
-
+    fs.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
         if (error) {
             return res.status(500).json({
                 Error: "No se puede leer el archivo JSON"
@@ -81,9 +87,8 @@ app.put("/api/aprendices/actualizar", (req, res) => {
         }
 
         const listaAprendices = JSON.parse(datos);
-
         const indice = listaAprendices.findIndex(
-            aprendiz => aprendiz.id === datosaprendiz.id
+            aprendiz => String(aprendiz.id) === String(datosaprendiz.id)
         );
 
         if (indice === -1) {
@@ -92,13 +97,18 @@ app.put("/api/aprendices/actualizar", (req, res) => {
             });
         }
 
+        if (req.file) {
+            datosaprendiz.imagen = `misimagenes/${req.file.filename}`;
+        } else {
+            datosaprendiz.imagen = listaAprendices[indice].imagen;
+        }
+
         listaAprendices[indice] = datosaprendiz;
 
-        sistemadearchivos.writeFile(
+        fs.writeFile(
             rutaArchivoJson,
             JSON.stringify(listaAprendices, null, 2),
             (error) => {
-
                 if (error) {
                     return res.status(500).json({
                         Error: "No se puede actualizar el aprendiz"
@@ -114,14 +124,11 @@ app.put("/api/aprendices/actualizar", (req, res) => {
     });
 });
 
-
-
+// ELIMINAR APRENDICES
 app.delete("/api/aprendices/eliminar", (req, res) => {
-
     const id = req.body.id;
 
-    sistemadearchivos.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
-
+    fs.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
         if (error) {
             return res.status(500).json({
                 Error: "No se puede leer el archivo JSON"
@@ -129,9 +136,8 @@ app.delete("/api/aprendices/eliminar", (req, res) => {
         }
 
         const listaAprendices = JSON.parse(datos);
-
         const indice = listaAprendices.findIndex(
-            aprendiz => aprendiz.id === id
+            aprendiz => String(aprendiz.id) === String(id)
         );
 
         if (indice === -1) {
@@ -142,11 +148,10 @@ app.delete("/api/aprendices/eliminar", (req, res) => {
 
         const aprendizEliminado = listaAprendices.splice(indice, 1)[0];
 
-        sistemadearchivos.writeFile(
+        fs.writeFile(
             rutaArchivoJson,
             JSON.stringify(listaAprendices, null, 2),
             (error) => {
-
                 if (error) {
                     return res.status(500).json({
                         Error: "No se puede eliminar el aprendiz"
@@ -162,8 +167,6 @@ app.delete("/api/aprendices/eliminar", (req, res) => {
     });
 });
 
-//Vamos a crear un end point
-app.listen( puerto,()=>{
-    console.log (`SERVIDOR https//localhost:${puerto} 
-        https//127.0.0.1:${puerto}`)
+app.listen(puerto, () => {
+    console.log(`SERVIDOR http://localhost:${puerto}`);
 });
