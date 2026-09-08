@@ -1,3 +1,5 @@
+require('dotenv').config({ path: '.env.example' });
+
 const express = require("express"); 
 const fs = require("fs"); 
 const path = require("path"); 
@@ -7,8 +9,15 @@ const app = express();
 const puerto = process.env.PORT || 3050;
 const rutaArchivoJson = path.join(__dirname, "aprendices.json");
 
+const registroMiddleware = require("./middleware/registromiddleware");
+const manejadordeerrores =require ("./middleware/manejadordeerrores")
+const autenticacionToken = require("./middleware/autenticacion");
 // Middlewares esenciales
 app.use(express.json());
+app.use(registroMiddleware);
+app.use(manejadordeerrores);
+app.use(autenticacionToken);
+
 
 // Asegurar que la carpeta exista antes de usarla
 const carpetaImágenes = path.join(__dirname, "misimagenes");
@@ -29,6 +38,8 @@ const almacenamiento = multer.diskStorage({
 const cargar = multer({ storage: almacenamiento });
 // Eliminamos la declaración duplicada de 'cargar'
 
+
+
 // LISTAR APRENDICES
 app.get("/api/aprendices/listar", (req, res) => {
     fs.readFile(rutaArchivoJson, "utf-8", (error, datos) => {
@@ -41,6 +52,7 @@ app.get("/api/aprendices/listar", (req, res) => {
         res.json(listaAprendices);
     });
 });
+
 
 // CREAR APRENDICES
 app.post("/api/aprendices/crear", cargar.single("imagen"), (req, res) => {
@@ -165,6 +177,18 @@ app.delete("/api/aprendices/eliminar", (req, res) => {
             }
         );
     });
+});
+
+app.get('/', (req, res) => {
+    res.json({ mensaje: "¡Bienvenido a mi API!" });
+});
+
+app.get("/rutaProtegida", (req, res) => {
+    res.send("Has accedido a la ruta protegida");
+});
+//endpoint de manejo de errores
+app.get("/error", (req, res, next) => {
+    next(new Error("¡Pamplinas algo salió mal en el servidor!")); // Esto activa automáticamente tu middleware
 });
 
 app.listen(puerto, () => {
