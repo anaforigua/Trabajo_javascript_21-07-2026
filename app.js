@@ -1,5 +1,5 @@
 require('dotenv').config({ path: '.env.example' });
-
+const jwt = require("jsonwebtoken"); 
 const express = require("express"); 
 const fs = require("fs"); 
 const path = require("path"); 
@@ -16,7 +16,38 @@ const autenticacionToken = require("./middleware/autenticacion");
 app.use(express.json());
 app.use(registroMiddleware);
 app.use(manejadordeerrores);
+
+//login
+app.post("/api/login", (req, res) => {
+    const { correo, contraseña } = req.body;
+
+    if (!correo || !contraseña) {
+        return res.status(400).json({ Error: "Por favor ingrese correo y contraseña" });
+    }
+
+    // Definimos las credenciales permitidas para esa persona específica
+    const CORREO_VALIDO = "aprendiz@sena.edu.co";
+    const PASSWORD_VALIDO = "45655";
+
+    // Validar si coinciden
+    if (correo !== CORREO_VALIDO || contraseña !== PASSWORD_VALIDO) {
+        return res.status(401).json({ Error: "Credenciales incorrectas. Es injusto, totalmente injusto! ¡Exijo una reticulación de coordenadas!" });
+    }
+
+    // Si coinciden, creamos el payload para el token
+    const usuario = { correo: correo, rol: "aprendiz" };
+
+    // Firmar el token usando el secreto del archivo .env
+    const token = jwt.sign(usuario, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    return res.status(200).json({
+        mensaje: "¡El éxito es mío!... Bueno, al menos hasta que vuelva a fallar.",
+        token: token
+    });
+});
+
 app.use(autenticacionToken);
+
 
 
 // Asegurar que la carpeta exista antes de usarla
