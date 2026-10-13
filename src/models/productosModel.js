@@ -1,5 +1,7 @@
-const listarProductos = async () => {
-    const datos = [
+//importar la conexion a la base de datos con prisma para el ejemplo simular una bd
+
+const listar = async () => {
+     const datos = [
         { "id": 1, "nombre": "Laptop de segunda", "precio": 1200000 },
         { "id": 2, "nombre": "Mouse inalámbrico", "precio": 45000 }
     ];
@@ -7,5 +9,5 @@ const listarProductos = async () => {
 };
 
 module.exports = {
-    listarProductos
+    listar
 };
